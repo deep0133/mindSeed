@@ -10,6 +10,28 @@ import {
 } from "../utils/validationSchema";
 import { AuthRequest } from "../utils/types";
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     description: Retrieve a list of users
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: number
+ *                   name:
+ *                     type: string
+ */
+
 export const getProfile = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const userId = req.user?.userId;
