@@ -25,7 +25,7 @@ export const sendMoneySchema = z
   .int()
   .positive();
 
-export const validateInputeData = (schema, data) => {
+export const validateInputeData = (schema: z.Schema, data: object) => {
   const result = schema.safeParse(data);
 
   if (!result.success) {
@@ -37,7 +37,7 @@ export const validateInputeData = (schema, data) => {
         : undefined,
       fieldErrors: Object.fromEntries(
         Object.entries(formattedErrors.fieldErrors).filter(
-          ([key, value]) => value.length > 0
+          ([key, value]) => value!?.length > 0
         )
       ),
     };
