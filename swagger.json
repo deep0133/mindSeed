@@ -12,7 +12,7 @@
     },
     {
       "url": "https://mindseed.onrender.com",
-      "description": "API documentation for frontend developers"
+      "description": "Live API"
     }
   ],
   "paths": {
@@ -27,11 +27,60 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "success": { "type": "boolean" },
-                      "message": { "type": "string" }
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/profile": {
+      "get": {
+        "summary": "Get user profile",
+        "tags": ["Users"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User profile details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "67cac88c73afdd12d42d88e0"
+                        },
+                        "name": { "type": "string" },
+                        "email": {
+                          "type": "string"
+                        },
+                        "phoneNumber": {
+                          "type": "string"
+                        },
+                        "row_status": {
+                          "type": "string",
+                          "enum": ["active", "delete"],
+                          "example": "active"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "__v": { "type": "integer", "example": 0 }
+                      }
                     }
                   }
                 }
@@ -41,10 +90,71 @@
         }
       }
     },
-    "/api/v1/users": {
+    "/api/v1/users/otherUser/{id}": {
+      "get": {
+        "summary": "Get another user by ID",
+        "tags": ["Users"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "67cac88c73afdd12d42d88e0"
+                        },
+                        "name": { "type": "string" },
+                        "email": {
+                          "type": "string"
+                        },
+                        "phoneNumber": {
+                          "type": "string"
+                        },
+                        "row_status": {
+                          "type": "string",
+                          "enum": ["active", "delete"],
+                          "example": "active"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "__v": { "type": "integer", "example": 0 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/all": {
       "get": {
         "summary": "Get all users",
         "tags": ["Users"],
+        "security": [{ "BearerAuth": [] }],
         "responses": {
           "200": {
             "description": "List of users",
@@ -55,8 +165,10 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": { "type": "number" },
-                      "name": { "type": "string" }
+                      "id": { "type": "string" },
+                      "name": { "type": "string" },
+                      "email": { "type": "string" },
+                      "phoneNumber": { "type": "string" }
                     }
                   }
                 }
@@ -64,6 +176,142 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/users/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "example": "John Doe" },
+                  "email": {
+                    "type": "string",
+                    "example": "johndoe@example.com"
+                  },
+                  "phoneNumber": {
+                    "type": "string",
+                    "example": "+919876543210"
+                  },
+                  "password": { "type": "string", "example": "password123" }
+                },
+                "required": ["name", "email", "phoneNumber", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "email": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/login": {
+      "post": {
+        "summary": "User login",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "johndoe@example.com"
+                  },
+                  "password": { "type": "string", "example": "password123" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "67cac88c73afdd12d42d88e0"
+                        },
+                        "name": { "type": "string" },
+                        "email": {
+                          "type": "string"
+                        },
+                        "phoneNumber": {
+                          "type": "string",
+                          "example": "+910000000000"
+                        },
+                        "row_status": {
+                          "type": "string",
+                          "enum": ["active", "delete"],
+                          "example": "active"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2025-03-07T10:21:00.658Z"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "__v": { "type": "integer", "example": 0 }
+                      }
+                    },
+                    "accessToken": { "type": "string" },
+                    "refreshToken": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }
