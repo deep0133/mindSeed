@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Schema, z } from "zod";
 
 export const userSchema = z.object({
   name: z.string().min(3),
@@ -25,7 +25,18 @@ export const sendMoneySchema = z
   .int()
   .positive();
 
-export const validateInputeData = (schema: z.Schema, data: object) => {
+export const userUpdateSchema = userSchema.partial();
+
+export const validateInputeData = (schema: Schema, data: {}) => {
+  console.log("----data-----:", data);
+  if (!data || typeof data !== "object") {
+    return {
+      success: false,
+      message: "All fields required",
+      error: "Body is undefined or null",
+    };
+  }
+
   const result = schema.safeParse(data);
 
   if (!result.success) {
@@ -37,7 +48,7 @@ export const validateInputeData = (schema: z.Schema, data: object) => {
         : undefined,
       fieldErrors: Object.fromEntries(
         Object.entries(formattedErrors.fieldErrors).filter(
-          ([key, value]) => value!?.length > 0
+          ([key, value]) => value!.length > 0
         )
       ),
     };

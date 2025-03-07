@@ -1,0 +1,70 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MindSeed API",
+    "version": "1.0.0",
+    "description": "API documentation for frontend developers"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5999",
+      "description": "Testing Locally"
+    },
+    {
+      "url": "https://mindseed.onrender.com",
+      "description": "API documentation for frontend developers"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Check Server",
+        "tags": ["Condition"],
+        "responses": {
+          "200": {
+            "description": "Server Running?",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "success": { "type": "boolean" },
+                      "message": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "summary": "Get all users",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "number" },
+                      "name": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

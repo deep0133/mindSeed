@@ -3,12 +3,14 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET_KEY } from "../utils/types";
 
+// const JWT_SECRET_KEY = process.env.JWT_SECRET as string;
 // Define a TypeScript interface for the User schema
 interface IUser extends Document {
   name: string;
   email: string;
   phoneNumber: string;
   password: string;
+  row_status: { type: String; enum: ["active", "delete"] };
   wallet: number;
   matchPassword(password: string): Promise<boolean>;
   generateJwtAccessToken(): string;
@@ -18,13 +20,13 @@ interface IUser extends Document {
 const userSchema = new Schema<IUser>(
   {
     name: String,
-    email: { type: String, unique: true },
+    email: { type: String },
     phoneNumber: String,
     password: String,
-    wallet: {
-      type: Number,
-      min: 0,
-      default: 5000,
+    row_status: {
+      type: String,
+      enum: ["active", "delete"],
+      default: "active",
     },
   },
   { timestamps: true }
@@ -46,11 +48,13 @@ userSchema.methods.matchPassword = async function (password: string) {
 
 userSchema.methods.generateJwtAccessToken = function () {
   const userId = this._id;
+  console.log("---------jwt sec key-------:", JWT_SECRET_KEY);
   const sign = jwt.sign({ userId }, JWT_SECRET_KEY, {
     expiresIn: "1d",
   });
   return sign;
 };
+
 userSchema.methods.generateJwtRefreshToken = function () {
   const userId = this._id;
   const sign = jwt.sign({ userId }, JWT_SECRET_KEY, {

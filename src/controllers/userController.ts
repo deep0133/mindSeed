@@ -6,36 +6,15 @@ import UserModel from "../models/userModel";
 import {
   loginSchema,
   userSchema,
+  userUpdateSchema,
   validateInputeData,
 } from "../utils/validationSchema";
 import { AuthRequest } from "../utils/types";
 
-/**
- * @swagger
- * /users:
- *   get:
- *     summary: Get all users
- *     description: Retrieve a list of users
- *     responses:
- *       200:
- *         description: Successfully retrieved users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: number
- *                   name:
- *                     type: string
- */
-
+// Get User Profile
 export const getProfile = asyncHandler(
   async (req: AuthRequest, res: Response) => {
-    const userId = req.user?.userId;
-
+    const userId = req?.user?.userId;
     let user = await UserModel.findOne({ _id: userId }).select("-password");
     if (!user) {
       throw new ErrorHanlder(
@@ -52,6 +31,7 @@ export const getProfile = asyncHandler(
   }
 );
 
+// Get User Detail
 export const getUser = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
 
@@ -69,8 +49,9 @@ export const getUser = asyncHandler(async (req: AuthRequest, res: Response) => {
   });
 });
 
+// Get All User List
 export const getAllUser = asyncHandler(async (req: AuthRequest, res) => {
-  let user = await UserModel.find({ _id: { $ne: req.user?.userId } });
+  let user = await UserModel.find({ _id: { $ne: req?.user?.userId } });
   if (!user) {
     if (!user) {
       throw new ErrorHanlder("User List is Empty", "Database is Empty", 400);
@@ -83,12 +64,13 @@ export const getAllUser = asyncHandler(async (req: AuthRequest, res) => {
   });
 });
 
+// Signup
 export const signUp = asyncHandler(async (req, res) => {
   const userData = req.body;
   const inputValidate = validateInputeData(userSchema, userData);
 
   if (!inputValidate?.success) {
-    throw new ErrorHanlder("Inputs are invalids", inputValidate.error, 400);
+    throw new ErrorHanlder(inputValidate?.message!, inputValidate.error, 400);
   }
 
   const existingUser = await UserModel.findOne({ email: userData.email });
@@ -111,6 +93,7 @@ export const signUp = asyncHandler(async (req, res) => {
   });
 });
 
+// Sigin
 export const signIn = asyncHandler(async (req, res, next) => {
   const userData = req.body;
   const inputValidate = validateInputeData(loginSchema, userData);
@@ -119,7 +102,10 @@ export const signIn = asyncHandler(async (req, res, next) => {
     throw new ErrorHanlder("Invalid inputs", inputValidate.error, 400);
   }
 
-  const user = await UserModel.findOne({ email: userData.email });
+  const user = await UserModel.findOne({
+    email: userData.email,
+    row_status: "active",
+  });
 
   if (!user) {
     throw new ErrorHanlder("Invalid Credentails", "User Not Exist", 400);
@@ -144,12 +130,40 @@ export const signIn = asyncHandler(async (req, res, next) => {
   });
 });
 
+// Update profile:
+
+export const updateUser = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+  const updateData = req.body;
+
+  const inputValidate = validateInputeData(userUpdateSchema, updateData);
+
+  if (!inputValidate?.success) {
+    throw new ErrorHanlder("Inputs are invalid", inputValidate.error, 400);
+  }
+
+  const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
+    new: true,
+  });
+
+  if (!updatedUser) {
+    throw new ErrorHanlder("User not found", "User not found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User updated successfully",
+    user: updatedUser,
+  });
+});
+
+// Delete All User ---------For backend dev------- Not in use
 export const deleteAllUser = asyncHandler(async (req, res, next) => {
   const deletedUsers = await UserModel.deleteMany({});
 
   res.status(200).json({
     success: true,
-    message: "user created successfully",
+    message: "user deleted successfully",
     deletedUsers,
   });
 });

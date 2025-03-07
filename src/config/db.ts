@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 
-const connectToDb = mongoose
-  .connect("mongodb://localhost:27017/mindseed")
-  .then((connection) => {
-    console.log("successfully connected to db");
-  });
+// "mongodb://localhost:27017/mindseed"
+const db_url: string = process.env.MONGO_DB_URL!;
+
+const connectToDb = mongoose.connect(db_url).then((connection) => {
+  console.log("successfully connected to db : Host : ");
+});
 
 export default connectToDb;

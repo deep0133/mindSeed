@@ -1,37 +1,32 @@
-import express from "express";
-import dotenv from "dotenv";
+import express, { NextFunction, Request, Response } from "express";
 
-dotenv.config();
-import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import dotenv from "dotenv";
+dotenv.config();
+import userRoutes from "./routes/userRoutes";
+
+import "./config/db";
+
+import fs from "fs";
+import path from "path";
 
 const app = express();
 
 const PORT = process.env.PORT;
 
-// Swagger Configuration
-const swaggerOptions: swaggerJsDoc.Options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "MindSeed Doc",
-      version: "1.0.0",
-      description: "API documentation for Frontend developers",
-    },
-    servers: [
-      {
-        url: `http://localhost:${PORT}`,
-      },
-    ],
-  },
-  apis: ["./src/routes/*.ts"], // Adjust this path based on your project structure
-};
+// Load Swagger JSON
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../swagger.json"), "utf8")
+);
+
+app.use(express.json());
 
 // Initialize Swagger Docs
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.use("/", (req, res) => {
+app.use("/api/v1/user", userRoutes);
+
+app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Mindseed backend working",
@@ -40,4 +35,23 @@ app.use("/", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`------App listening on : http://localhost:${PORT}`);
+});
+
+// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+//   res.status(400).json({
+//     success: false,
+//     message: err.message,
+//     error: err.errors,
+//   });
+// });
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  let statusCode = err?.statusCode || 500;
+  let message = err?.message || "Internal Server Error";
+  let error = err?.error || err?.errors || "Error not detacted yet";
+  res.status(statusCode).json({
+    success: false,
+    message: message,
+    error: error,
+  });
 });

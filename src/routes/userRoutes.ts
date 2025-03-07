@@ -6,19 +6,19 @@ import {
   getUser,
   signIn,
   signUp,
-} from "../controllers/userController.js";
+} from "../controllers/userController";
 import { Auth } from "../middlewares/auth";
 
 const userRoutes = Router();
 
-// // middleware that is specific to this router
-// const timeLog = (req, res, next) => {
-//   console.log("User API Time: ", new Date(Date.now()).toLocaleString());
-//   next();
-// };
-// userRoutes.use(timeLog);
-
+// profile, list
 userRoutes.get("/profile", Auth, getProfile);
+userRoutes.get("/otherUser/:id", Auth, getUser);
 userRoutes.get("/all", Auth, getAllUser);
+
+// auth
+userRoutes.post("/register", signUp);
+userRoutes.post("/login", signIn);
+userRoutes.delete("/deleteAll", deleteAllUser);
 
 export default userRoutes;
